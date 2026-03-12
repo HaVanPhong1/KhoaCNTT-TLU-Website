@@ -1,4 +1,4 @@
-﻿
+
 using KhoaCNTT.API.Filters;
 using KhoaCNTT.Application.Common.Utils;
 using KhoaCNTT.Application.Interfaces.Repositories;
@@ -36,6 +36,8 @@ namespace KhoaCNTT.API.Extensions
             services.AddScoped<IAdminRepository, AdminRepository>();
             services.AddScoped<IFileRepository, FileRepository>();
             services.AddScoped<ISubjectRepository, SubjectRepository>();
+            services.AddScoped<ILecturerRepository, LecturerRepository>();
+            services.AddScoped<ILecturerService, LecturerService>();
 
 
             services.AddScoped<IFileRequestRepository, FileRequestRepository>();

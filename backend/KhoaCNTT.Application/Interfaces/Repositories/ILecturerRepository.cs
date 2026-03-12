@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using KhoaCNTT.Domain.Entities;
+using KhoaCNTT.Domain.Enums;
 
 namespace KhoaCNTT.Application.Interfaces.Repositories
 {
-    internal class ILecturerRepository
+    public interface ILecturerRepository
     {
+        Task<Lecturer?> GetByIdAsync(int id);
+        Task<(List<Lecturer> Items, int TotalCount)> GetAllAsync(string? name, DegreeType? degree, string? position, string? subjectCode, int page, int pageSize);
+        Task AddAsync(Lecturer lecturer);
+        Task UpdateAsync(Lecturer lecturer);
+        Task DeleteAsync(Lecturer lecturer);
     }
 }

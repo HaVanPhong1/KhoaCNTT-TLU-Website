@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,8 +14,9 @@ namespace KhoaCNTT.Domain.Entities
         public int LecturerId { get; set; }
         public Lecturer Lecturer { get; set; } = null!;
 
-        // Khóa ngoại trỏ đến Môn học
-        public int SubjectId { get; set; }
+        // Khóa ngoại trỏ đến Môn học (Subject PK là SubjectCode)
+        public int SubjectId { get; set; } // phần của composite key (LecturerId, SubjectId)
+        public string SubjectCode { get; set; } = string.Empty; // FK đến Subjects
         public Subject Subject { get; set; } = null!;
     }
 }
