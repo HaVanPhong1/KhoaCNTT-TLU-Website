@@ -33,7 +33,7 @@ namespace KhoaCNTT.Application.Services
         public async Task CreateAdminAsync(CreateAdminRequest request)
         {
             // 1. Check fields
-            // check username không dược để trống và có độ dài từ 3-20 ký tự, chỉ chứa chữ, số, dấu châm và dấu gạch dưới
+            // check username
             if (string.IsNullOrWhiteSpace(request.Username) ||
                 !Regex.IsMatch(request.Username, @"^[a-zA-Z0-9._]{3,20}$"))
             {
@@ -41,14 +41,16 @@ namespace KhoaCNTT.Application.Services
                     "Tên đăng nhập phải từ 3–20 ký tự và chỉ chứa chữ, số, dấu chấm hoặc dấu gạch dưới."
                 );
             }
+            // Check các trường khác
+            _checkFields(request.Password, request.FullName, request.Email, request.Level, true);
 
             // Check trùng Username
             var existAdmin = await _repo.GetByUsernameAsync(request.Username);
             if (existAdmin != null)
                 throw new BusinessRuleException("Tên đăng nhập này đã tồn tại.");
 
-            // Check các trường khác
-            _checkFields(request.Password, request.Email, request.Level, true);
+            if (existAdmin.Email == request.Email)
+                throw new BusinessRuleException("Email này đã tồn tại.");
 
             // 2. Hash Password
             var passwordHash = _hasher.Hash(request.Password);
@@ -72,17 +74,16 @@ namespace KhoaCNTT.Application.Services
             var admin = await _repo.GetByIdAsync(id);
             if (admin == null) throw new NotFoundException("Admin", id);
 
-            if (string.IsNullOrWhiteSpace(request.FullName) && string.IsNullOrWhiteSpace(request.FullName))
-            {
-                throw new BusinessRuleException("Tên người dùng không được để trống.");
-            }
+            _checkFields(request.Password, request.FullName, request.Email, request.Level, false);
+
+            var existAdmin = await _repo.GetByIdAsync(id);
+            if (existAdmin.Email == request.Email)
+                throw new BusinessRuleException("Email này đã tồn tại.");
 
             if (admin.Level == 1)
             {
                 throw new BusinessRuleException("Không thể chỉnh sửa thông tin của Super Admin.");
             }
-
-            _checkFields(request.Password, request.Email, request.Level, false);
 
             // Cập nhật thông tin (Không cho đổi Username)
             admin.FullName = request.FullName ?? admin.FullName;
@@ -108,11 +109,15 @@ namespace KhoaCNTT.Application.Services
             await _repo.DeleteAsync(admin);
         }
 
-        private bool _checkFields(string? password,string? email, int? level, bool isCreate)
+        private bool _checkFields(string? password, string? fullName, string? email, int? level, bool isCreate)
         {
             if (level != null && (level < 1 || level > 3))
             {
                 throw new BusinessRuleException("Cấp độ quản trị viên không hợp lệ. Phải là 1, 2 hoặc 3.");
+            }
+            if (string.IsNullOrWhiteSpace(fullName) && string.IsNullOrWhiteSpace(fullName))
+            {
+                throw new BusinessRuleException("Tên người dùng không được để trống.");
             }
             if (!string.IsNullOrWhiteSpace(email))
             {

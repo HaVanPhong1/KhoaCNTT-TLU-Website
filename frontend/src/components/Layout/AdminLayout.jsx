@@ -48,17 +48,21 @@ function AdminLayout() {
 					<p className='text-xs text-blue-200'>Admin Dashboard</p>
 				</div>
 
-				<nav className='flex-1 px-2 py-4 space-y-1'>
+				<nav className='flex-1 px-2 py-4 space-y-2'>
 					{canViewAccounts === null
-						? null
+						? [...Array(5)].map((_, i) => (
+								<div
+									key={i}
+									className='h-8 bg-blue-900 rounded animate-pulse'
+								/>
+							))
 						: menu
 								.filter((item) => {
 									if (
 										item.path === '/admin/accounts' &&
 										!canViewAccounts
-									) {
+									)
 										return false
-									}
 									return true
 								})
 								.map((item) => {
@@ -71,7 +75,7 @@ function AdminLayout() {
 											key={item.path}
 											to={item.path}
 											className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition
-										${active ? 'bg-blue-800' : 'hover:bg-blue-900'}`}>
+							${active ? 'bg-blue-800' : 'hover:bg-blue-900'}`}>
 											{Icon && <Icon size={18} />}
 											{item.name}
 										</Link>
