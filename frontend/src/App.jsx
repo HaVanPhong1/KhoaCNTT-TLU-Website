@@ -24,11 +24,6 @@ import ManageLecturers from './pages/Admin/manages/ManageLecturers'
 import ManageReports from './pages/Admin/manages/ManageReports'
 import AdminNewsManagement from './pages/News/Admin/AdminNewsManagement'
 
-const HomePlaceholder = () => (
-	<div className='p-12 text-center text-2xl font-bold'>
-		Trang chủ / Tin tức (Đang phát triển)
-	</div>
-)
 
 function App() {
 	return (

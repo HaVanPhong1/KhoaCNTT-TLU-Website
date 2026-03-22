@@ -93,7 +93,7 @@ export const uploadFields = [
 		required: true,
 	},
 	{
-		name: 'FileType',
+		name: 'fileType',
 		label: 'Loại tài liệu',
 		type: 'select',
 		options: [
@@ -122,7 +122,7 @@ export const uploadFields = [
 		]
 	},
 	{
-		name: 'File',
+		name: 'file',
 		label: 'Chọn file',
 		type: 'file',
 		required: true,
@@ -139,7 +139,7 @@ export const replaceFields = [
 		fullWidth: true
 	},
 	{
-		name: 'File',
+		name: 'file',
 		label: 'Chọn file thay thế mới',
 		type: 'file',
 		required: true,
