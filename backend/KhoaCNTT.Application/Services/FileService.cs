@@ -206,6 +206,7 @@ namespace KhoaCNTT.Application.Services
                 {
                     continue;
                 }
+                sendToClient.Add(_mapper.Map<FileDto>(entity));
             }
 
             return new PagedResult<FileDto>

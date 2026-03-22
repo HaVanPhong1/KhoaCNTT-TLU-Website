@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { handleDownload, normalizeFileSize } from '../../helpers/fileHelpers'
+import { fileTypeMap, permissionMap } from '../../constants/file'
 
 function FileCard({ file, setPopup }) {
 	const navigate = useNavigate()
@@ -23,10 +24,10 @@ function FileCard({ file, setPopup }) {
 							</span>
 						)}
 						<span className='bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs'>
-							{file.fileType}
+							{fileTypeMap[file.fileType]}
 						</span>
 						<span className='bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs'>
-							{file.permission}
+							{permissionMap[file.permission]}
 						</span>
 					</div>
 
@@ -46,7 +47,7 @@ function FileCard({ file, setPopup }) {
 						<p>
 							Size:{' '}
 							<span className='font-semibold text-gray-700'>
-								{normalizeFileSize(file.fileSize)} 
+								{normalizeFileSize(file.fileSize)}
 							</span>
 						</p>
 						<p>

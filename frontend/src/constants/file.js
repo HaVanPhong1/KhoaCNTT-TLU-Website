@@ -189,3 +189,19 @@ export const getSearchConfig = (subjects) => [
 		width: "w-[90px]"
 	}
 ]
+
+
+export const fileTypeMap = {
+	LectureNotes: 'Bài giảng',
+	Test: 'Đề thi',
+	Form: 'Biểu mẫu',
+	Other: 'Khác'
+}
+
+export const permissionMap = {
+	PublicDownload: 'Được tải',
+	PublicRead: 'Chỉ xem',
+	StudentRead: 'SV chỉ xem',
+	StudentDownload: 'SV được tải',
+	Hidden: 'Ẩn'
+}
