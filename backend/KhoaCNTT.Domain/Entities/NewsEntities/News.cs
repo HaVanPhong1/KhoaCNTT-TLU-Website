@@ -13,7 +13,9 @@ namespace KhoaCNTT.Domain.Entities.NewsEntities
 
         // Khóa ngoại Admin
         public int CreatedById { get; set; }
-        public Admin CreatedBy { get; set; } = null!; // được thiết lập khi tạo tin tức resource
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        public Admin CreatedBy { get; set; } = null!;
 
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }

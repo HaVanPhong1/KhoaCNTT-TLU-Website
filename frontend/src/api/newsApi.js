@@ -1,49 +1,52 @@
+import axiosClient from "./axiosClient";
 
-import axiosClient from './axiosClient'
+// BE serialize enum thành string → gửi string trực tiếp, không convert sang số
+const approvalDecisionMap = {
+  Approved: 0,
+  Rejected: 1,
+};
+
+const toPayload = (form) => ({
+  ...form,
+  // newsType giữ nguyên string vì BE expect string
+});
 
 const newsApi = {
-	search: (params) => {
-		return axiosClient.get('/news/search', { params })
-	},
+  // ── Public ────────────────────────────────────────────
+  search: (params) => axiosClient.get("/News", { params }),
 
-	getById: (id) => {
-		return axiosClient.get(`/news/${id}`)
-	},
+  getById: (id) => axiosClient.get(`/News/${id}`),
 
-	create: (data) => {
-		return axiosClient.post('/news', data)
-	},
+  // === THÊM HÀM TĂNG VIEW Ở ĐÂY ===
+  incrementView: (id) => axiosClient.post(`/News/${id}/view`),
 
-	update: (id, data) => {
-		return axiosClient.put(`/news/${id}`, data)
-	},
+  // ── Admin - Tạo/Sửa/Xóa ──────────────────────────────
+  create: (data) => axiosClient.post("/News/requests/create", toPayload(data)),
 
-	delete: (id) => {
-		return axiosClient.delete(`/news/${id}`)
-	},
+  update: (id, data) =>
+    axiosClient.post(
+      "/News/requests/update",
+      toPayload({ ...data, TargetNewsID: id }),
+    ),
 
-	// --- DUYỆT BÀI ---
-	getPendingList: () => {
-		return axiosClient.get('/news/pending')
-	},
+  delete: (id) => axiosClient.delete(`/News/${id}`),
 
-	approve: (id, data) => {
-		return axiosClient.put(`/news/request/${id}/approve`, data)
-	},
+  // ── Admin - Duyệt bài ─────────────────────────────────
+  getPendingList: () => axiosClient.get("/News/requests/pending"),
 
-	// --- BÌNH LUẬN ---
-	getComments: (newsId) => {
-		return axiosClient.get(`/news/${newsId}/comments`)
-	},
+  approve: (id, data) =>
+    axiosClient.put(`/News/requests/${id}/approve`, {
+      ...data,
+      decision: approvalDecisionMap[data.decision] ?? data.decision,
+    }),
 
-	postComment: (newsId, data) => {
-		// data: { msv, studentName, content }
-		return axiosClient.post(`/news/${newsId}/comments`, data)
-	},
+  // ── Bình luận ─────────────────────────────────────────
+  getComments: (newsId) => axiosClient.get(`/News/${newsId}/comments`),
 
-	deleteComment: (commentId) => {
-		return axiosClient.delete(`/comments/${commentId}`)
-	}
-}
+  postComment: (newsId, data) =>
+    axiosClient.post(`/News/${newsId}/comments`, data),
 
-export default newsApi
+  deleteComment: (commentId) => axiosClient.delete(`/comments/${commentId}`),
+};
+
+export default newsApi;
