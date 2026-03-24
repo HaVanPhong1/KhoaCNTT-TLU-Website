@@ -280,7 +280,7 @@ namespace KhoaCNTT.Application.Services
         public async Task DeleteFileAsync(int fileId)
         {
             // Xóa FileEntity
-            var file = await _fileRepo.GetByIdAsync(fileId) ?? throw new NotFoundException("File", fileId);
+            var file = await _fileRepo.GetByIdAsync(fileId) ?? throw new BusinessRuleException("Không tồn tại tài liệu này.");
             await _fileRepo.DeleteAsync(file);
         }
 

@@ -29,6 +29,7 @@ function FileList() {
 	const [editFile, setEditFile] = useState(null)
 	const [popup, setPopup] = useState(null)
 	const [warning, setWarning] = useState(null)
+	const role = localStorage.getItem('role')
 
 	const [page, setPage] = useState(1)
 	const [totalPages, setTotalPages] = useState(0)
@@ -126,7 +127,11 @@ function FileList() {
 						<IconButton
 							icon={Trash2}
 							color='red'
-							onClick={() =>
+							onClick={() => {
+								if (role === 'Admin3') {
+									setPopup('Bạn không có quyền xóa tài liệu.')
+									return
+								}
 								setWarning({
 									title: 'Xác nhận xóa tài liệu',
 									message:
@@ -134,6 +139,8 @@ function FileList() {
 									action: () => fileApi.delete(row.id),
 									popup: 'Xóa tài liệu thành công.'
 								})
+							}
+								
 							}
 						/>
 					</>

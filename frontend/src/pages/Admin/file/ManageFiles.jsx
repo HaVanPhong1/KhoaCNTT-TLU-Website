@@ -5,6 +5,7 @@ import FileRequests from './FileRequests'
 function ManageFiles() {
 	const [tab, setTab] = useState('files')
 	const role = localStorage.getItem('role')
+	console.log('User role:', role)
 
 	return (
 		<div className='p-6'>

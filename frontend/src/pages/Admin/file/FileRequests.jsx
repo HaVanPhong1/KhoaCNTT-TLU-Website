@@ -7,6 +7,7 @@ import PopupMessage from '../../../components/parts/PopupMessage'
 import { pendingColumns } from '../../../constants/file'
 
 import { ClipboardCheck } from 'lucide-react'
+import { handleError } from '../../../helpers/commonHelpers'
 
 function FileRequests() {
 	const [requests, setRequests] = useState([])
@@ -18,13 +19,7 @@ function FileRequests() {
 			const res = await fileApi.getPendingList()
 			setRequests(res)
 		} catch (err) {
-			const msg =
-				err.response?.data?.message ||
-				err.response?.data?.error ||
-				err.response?.data?.detail ||
-				err.message ||
-				'Không thể kết nối đến máy chủ, thử lại sau.'
-			setPopup?.(msg)
+			handleError(err, setPopup)
 		}
 	}
 
@@ -34,13 +29,7 @@ function FileRequests() {
 					const res = await fileApi.getPendingList()
 					setRequests(res)
 				} catch (err) {
-					const msg =
-						err.response?.data?.message ||
-						err.response?.data?.error ||
-						err.response?.data?.detail ||
-						err.message ||
-						'Không thể kết nối đến máy chủ, thử lại sau.'
-					setPopup?.(msg)
+					handleError(err, setPopup)
 				}
 			}
 		loadRequests()
@@ -56,13 +45,7 @@ function FileRequests() {
 			setSelected(null)
 			loadRequests()
 		} catch (err) {
-			const msg =
-				err.response?.data?.message ||
-				err.response?.data?.error ||
-				err.response?.data?.detail ||
-				err.message ||
-				'Không thể kết nối đến máy chủ, thử lại sau.'
-			setPopup?.(msg)
+			handleError(err, setPopup)
 		}
 	}
 
