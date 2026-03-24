@@ -9,6 +9,8 @@ namespace KhoaCNTT.Domain.Entities.NewsEntities
         public NewsRequest NewsRequest { get; set; } = null!;
 
         public int ApproverId { get; set; }
+
+        [System.Text.Json.Serialization.JsonIgnore]
         public Admin Admin { get; set; } = null!;
 
         public ApprovalDecision Decision { get; set; }

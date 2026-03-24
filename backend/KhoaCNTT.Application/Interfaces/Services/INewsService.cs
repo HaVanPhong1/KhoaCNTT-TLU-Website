@@ -1,4 +1,5 @@
 ﻿using KhoaCNTT.Application.DTOs;
+using KhoaCNTT.Application.DTOs.News;
 
 namespace KhoaCNTT.Application.Interfaces.Services;
 
@@ -19,4 +20,5 @@ public interface INewsService
 
     // ── Xóa (Cấp 1/2) ────────────────────────────────────────────
     Task DeleteNewsAsync(int newsId);
+    Task DeleteCommentAsync(int commentId);
 }

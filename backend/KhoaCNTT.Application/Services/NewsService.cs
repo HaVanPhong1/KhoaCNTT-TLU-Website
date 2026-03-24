@@ -1,5 +1,6 @@
 ﻿using KhoaCNTT.Application.Common.Exceptions;
 using KhoaCNTT.Application.DTOs;
+using KhoaCNTT.Application.DTOs.News;
 using KhoaCNTT.Application.Interfaces.Repositories;
 using KhoaCNTT.Application.Interfaces.Repositories.INewsRepositories;
 using KhoaCNTT.Application.Interfaces.Services;
@@ -14,17 +15,20 @@ public class NewsService : INewsService
     private readonly INewsResourceRepository _newsResourceRepo;
     private readonly INewsRequestRepository _newsRequestRepo;
     private readonly INewsApprovalRepository _newsApprovalRepo;
+    private readonly ICommentRepository _commentRepo;
 
     public NewsService(
         INewsRepository newsRepo,
         INewsResourceRepository newsResourceRepo,
         INewsRequestRepository newsRequestRepo,
-        INewsApprovalRepository newsApprovalRepo)
+        INewsApprovalRepository newsApprovalRepo,
+        ICommentRepository commentRepo)
     {
         _newsRepo = newsRepo;
         _newsResourceRepo = newsResourceRepo;
         _newsRequestRepo = newsRequestRepo;
         _newsApprovalRepo = newsApprovalRepo;
+        _commentRepo = commentRepo;
     }
 
     // ── Read ─────────────────────────────────────────────────────
@@ -35,13 +39,22 @@ public class NewsService : INewsService
         return news.Select(MapToResponse);
     }
 
+    private static readonly Dictionary<string, DateTime> _viewCooldown = new();
+
     public async Task<NewsResponse> GetNewsByIdAsync(int id)
     {
         var news = await _newsRepo.GetByIdWithResourceAsync(id)
             ?? throw new NotFoundException(nameof(Domain.Entities.NewsEntities.News), id);
 
-        await _newsRepo.IncrementViewCountAsync(id);
-        news.ViewCount++;
+        // Cooldown 5 giây — tránh React Strict Mode gọi 2 lần tăng 2 view
+        var cooldownKey = $"view_{id}";
+        var now = DateTime.UtcNow;
+        if (!_viewCooldown.TryGetValue(cooldownKey, out var lastView) || (now - lastView).TotalSeconds > 5)
+        {
+            _viewCooldown[cooldownKey] = now;
+            await _newsRepo.IncrementViewCountAsync(id);
+            news.ViewCount++;
+        }
 
         return MapToResponse(news);
     }
@@ -62,10 +75,12 @@ public class NewsService : INewsService
         var resource = new NewsResource
         {
             Content = dto.Content,
+            ResourceContent = dto.ResourceContent,
+            ImageUrl = dto.ImageUrl ?? string.Empty,
             CreatedBy = submitterId,
             CreatedAt = DateTime.UtcNow
         };
-        // await _newsResourceRepo.AddAsync(resource, ct);
+        await _newsResourceRepo.AddAsync(resource);
 
         var request = new NewsRequest
         {
@@ -78,7 +93,7 @@ public class NewsService : INewsService
             IsProcessed = false,
             CreatedAt = DateTime.UtcNow
         };
-        // await _newsRequestRepo.AddAsync(request, ct);
+        await _newsRequestRepo.AddAsync(request);
 
         if (isSenior)
             await ApproveRequestInternalAsync(submitterId, request.Id, ApprovalDecision.Approved, null);
@@ -99,10 +114,12 @@ public class NewsService : INewsService
         var newResource = new NewsResource
         {
             Content = dto.Content,
+            ResourceContent = dto.ResourceContent,
+            ImageUrl = dto.ImageUrl ?? string.Empty,
             CreatedBy = submitterId,
             CreatedAt = DateTime.UtcNow
         };
-        // await _newsResourceRepo.AddAsync(newResource, ct);
+        await _newsResourceRepo.AddAsync(newResource);
 
         var request = new NewsRequest
         {
@@ -115,7 +132,7 @@ public class NewsService : INewsService
             IsProcessed = false,
             CreatedAt = DateTime.UtcNow
         };
-        // await _newsRequestRepo.AddAsync(request, ct);
+        await _newsRequestRepo.AddAsync(request);
 
         if (isSenior)
             await ApproveRequestInternalAsync(submitterId, request.Id, ApprovalDecision.Approved, null);
@@ -130,7 +147,7 @@ public class NewsService : INewsService
         var news = await _newsRepo.GetByIdWithResourceAsync(newsId)
             ?? throw new NotFoundException(nameof(Domain.Entities.NewsEntities.News), newsId);
 
-        // await _newsRepo.DeleteAsync(news, CancellationToken.None);
+        await _newsRepo.DeleteAsync(news);
     }
 
     // ── Phê duyệt ────────────────────────────────────────────────
@@ -164,7 +181,7 @@ public class NewsService : INewsService
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
-        // await _newsApprovalRepo.AddAsync(approval, ct);
+        await _newsApprovalRepo.AddAsync(approval);
 
         if (decision == ApprovalDecision.Approved)
         {
@@ -180,7 +197,7 @@ public class NewsService : INewsService
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow
                 };
-                // await _newsRepo.AddAsync(news, ct);
+                await _newsRepo.AddAsync(news);
             }
             else // Replace
             {
@@ -191,12 +208,12 @@ public class NewsService : INewsService
                 targetNews.NewsType = newsRequest.NewsType;
                 targetNews.CurrentResourceId = newsRequest.NewResourceId;
                 targetNews.UpdatedAt = DateTime.UtcNow;
-                // await _newsRepo.UpdateAsync(targetNews, ct);
+                await _newsRepo.UpdateAsync(targetNews);
             }
         }
 
         newsRequest.IsProcessed = true;
-        // await _newsRequestRepo.UpdateAsync(newsRequest, ct);
+        await _newsRequestRepo.UpdateAsync(newsRequest);
 
         return new NewsApprovalResponse
         {
@@ -216,6 +233,8 @@ public class NewsService : INewsService
         NewsID = n.Id,
         Title = n.Title,
         Content = n.CurrentResource?.Content ?? string.Empty,
+        ResourceContent = n.CurrentResource?.ResourceContent ?? string.Empty,
+        ImageUrl = n.CurrentResource?.ImageUrl ?? string.Empty,
         ViewCount = n.ViewCount,
         NewsType = n.NewsType,
         CreatedBy = n.CreatedById,
@@ -234,4 +253,12 @@ public class NewsService : INewsService
         IsProcessed = r.IsProcessed,
         CreatedAt = r.CreatedAt
     };
+
+    public async Task DeleteCommentAsync(int commentId)
+    {
+        var comment = await _commentRepo.GetByIdAsync(commentId)
+            ?? throw new NotFoundException(nameof(Comment), commentId);
+
+        await _commentRepo.DeleteAsync(comment);
+    }
 }
