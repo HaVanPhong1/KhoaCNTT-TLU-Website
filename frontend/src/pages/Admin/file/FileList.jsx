@@ -15,8 +15,9 @@ import {
 	editMetadataFields,
 	getSearchConfig
 } from '../../../constants/file'
-import { checkSize, handleDownload } from '../../../helpers/fileHelpers'
+import { handleDownload, handleFormSubmit } from '../../../helpers/fileHelpers'
 import { Replace, Download, Trash2, Pencil } from 'lucide-react'
+import { handleError } from '../../../helpers/commonHelpers'
 
 function FileList() {
 	const [files, setFiles] = useState([])
@@ -51,13 +52,7 @@ function FileList() {
 			// setPage((prev) => (prev > newTotal ? newTotal : prev))
 			setTotalPages((prev) => Math.max(prev, newTotal))
 		} catch (err) {
-			const msg =
-				err.response?.data?.message ||
-				err.response?.data?.error ||
-				err.response?.data?.detail ||
-				err.message ||
-				'Không thể kết nối đến máy chủ, thử lại sau.'
-			setPopup?.(msg)
+			handleError(err, setPopup)
 		}
 	}
 
@@ -71,13 +66,7 @@ function FileList() {
 				// setPage((prev) => (prev > newTotal ? newTotal : prev))
 				setTotalPages((prev) => Math.max(prev, newTotal))
 			} catch (err) {
-				const msg =
-					err.response?.data?.message ||
-					err.response?.data?.error ||
-					err.response?.data?.detail ||
-					err.message ||
-					'Không thể kết nối đến máy chủ, thử lại sau.'
-				setPopup?.(msg)
+				handleError(err, setPopup)
 			}
 		}
 		loadFiles()
@@ -158,36 +147,17 @@ function FileList() {
 					fields={uploadFields}
 					columns={2}
 					width='600px'
-					onSubmit={async (formData) => {
-						try {
-							const file = formData.get('file')
-							if (!file) {
-								setPopup('Vui lòng chọn file.')
-								return
-							}
-							const error = checkSize(file, '250MB')
-							if (!error) {
-								setPopup(
-									'Tài liệu tải lên không được nặng hơn 250MB.'
-								)
-								return
-							}
-							const res = await fileApi.upload(formData)
-
-							setPopup(res.message)
-
-							setShowUpload(false)
-							loadFiles()
-						} catch (err) {
-							const msg =
-								err.response?.data?.message ||
-								err.response?.data?.error ||
-								err.response?.data?.detail ||
-								err.message ||
-								'Không thể kết nối đến máy chủ, thử lại sau.'
-							setPopup?.(msg)
-						}
-					}}
+					onSubmit={async (formData) =>
+						handleFormSubmit({
+							formData,
+							type: 'upload',
+							onSuccess: () => {
+								setShowUpload(false)
+								loadFiles()
+							},
+							setPopup
+						})
+					}
 					onClose={() => setShowUpload(false)}
 				/>
 			)}
@@ -198,28 +168,18 @@ function FileList() {
 					title='Sửa thông tin tài liệu'
 					fields={editMetadataFields}
 					defaultValues={editFile}
-					onSubmit={async (formData) => {
-						try {
-							const data = Object.fromEntries(formData.entries())
-
-							if (!data.subjectCode) {
-								delete data.subjectCode
-							}
-							await fileApi.updateMetadata(editFile.id, data)
-
-							setPopup('Cập nhật thông tin tài liệu thành công.')
-							setEditFile(null)
-							loadFiles()
-						} catch (err) {
-							const msg =
-								err.response?.data?.message ||
-								err.response?.data?.error ||
-								err.response?.data?.detail ||
-								err.message ||
-								'Không thể kết nối đến máy chủ, thử lại sau.'
-							setPopup?.(msg)
-						}
-					}}
+					onSubmit={async (formData) =>
+						handleFormSubmit({
+							formData,
+							type: 'edit',
+							extraData: editFile,
+							onSuccess: () => {
+								setEditFile(null)
+								loadFiles()
+							},
+							setPopup
+						})
+					}
 					onClose={() => setEditFile(null)}
 				/>
 			)}
@@ -230,47 +190,18 @@ function FileList() {
 					title='Đổi tài liệu'
 					fields={replaceFields}
 					defaultValues={{ oldTitle: replaceFile.title }}
-					onSubmit={async (formData) => {
-						try {
-							formData.append('Title', replaceFile.title)
-							formData.append(
-								'SubjectCode',
-								replaceFile.subjectCode || ''
-							)
-							formData.append('FileType', replaceFile.fileType)
-							formData.append(
-								'Permission',
-								replaceFile.permission
-							)
-							const file = formData.get('file')
-							if (!file) {
-								setPopup('Vui lòng chọn file.')
-								return
-							}
-							const error = checkSize(file, '250MB')
-							if (!error) {
-								setPopup(
-									'Tài liệu tải lên không được nặng hơn 250MB.'
-								)
-								return
-							}
-							const res = await fileApi.replace(
-								replaceFile.id,
-								formData
-							)
-							setPopup(res.message)
-							setReplaceFile(null)
-							loadFiles()
-						} catch (err) {
-							const msg =
-								err.response?.data?.message ||
-								err.response?.data?.error ||
-								err.response?.data?.detail ||
-								err.message ||
-								'Không thể kết nối đến máy chủ, thử lại sau.'
-							setPopup?.(msg)
-						}
-					}}
+					onSubmit={async (formData) =>
+						handleFormSubmit({
+							formData,
+							type: 'replace',
+							extraData: replaceFile,
+							onSuccess: () => {
+								setReplaceFile(null)
+								loadFiles()
+							},
+							setPopup
+						})
+					}
 					onClose={() => setReplaceFile(null)}
 				/>
 			)}
@@ -290,13 +221,7 @@ function FileList() {
 							setWarning(null)
 							loadFiles()
 						} catch (err) {
-							const msg =
-								err.response?.data?.message ||
-								err.response?.data?.error ||
-								err.response?.data?.detail ||
-								err.message ||
-								'Không thể kết nối đến máy chủ, thử lại sau.'
-							setPopup?.(msg)
+							handleError(err, setPopup)
 						}
 					}}
 					onClose={() => setWarning(null)}

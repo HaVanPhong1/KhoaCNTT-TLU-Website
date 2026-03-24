@@ -1,4 +1,3 @@
-
 export function normalizeDate(date) {
 	if (!date) return null
 
@@ -9,7 +8,6 @@ export function normalizeDate(date) {
 	return d.toISOString().split('T')[0]
 }
 
-
 export const handleAction = async (action, data, setter, loader, setPopup) => {
 	try {
 		const res = await action(data)
@@ -17,12 +15,16 @@ export const handleAction = async (action, data, setter, loader, setPopup) => {
 		loader?.()
 		setPopup?.(res.message)
 	} catch (err) {
-		const msg =
-			err.response?.data?.message || 
-			err.response?.data?.error ||
-			err.response?.data?.detail ||
-			err.message || 
-			'Không thể kết nối đến máy chủ, thử lại sau.'
-		setPopup?.(msg)
+		handleError(err, setPopup)
 	}
+}
+
+export const handleError = async (err, setPopup) => {
+	const msg =
+		err.response?.data?.message ||
+		err.response?.data?.error ||
+		err.response?.data?.detail ||
+		err.message ||
+		'Không thể kết nối đến máy chủ, thử lại sau.'
+	setPopup?.(msg)
 }

@@ -1,4 +1,5 @@
 import fileApi from '../api/fileApi'
+import { handleError } from './commonHelpers'
 
 export const getPagination = (page, totalPages) => {
 	const pages = []
@@ -25,8 +26,6 @@ export const getPagination = (page, totalPages) => {
 	}
 	return pages
 }
-
-
 
 export const normalizeFileSize = (size) => {
 	if (size == null) return '-'
@@ -83,4 +82,55 @@ export function checkSize(file, maxSizeMB) {
 	const maxSizeBytes = maxSize * 1024 * 1024
 
 	return file.size <= maxSizeBytes
+}
+
+
+export const handleFormSubmit = async ({ formData, type, extraData, onSuccess, setPopup }) => {
+	try {
+		// ===== validate subject =====
+		console.log([...formData.entries()])
+
+		// ===== validate file nếu có =====
+		if (type === 'upload' || type === 'replace') {
+			const file = formData.get('file')
+			if (!file) {
+				setPopup('Vui lòng chọn file.')
+				return
+			}
+
+			const ok = checkSize(file, '250MB')
+			if (!ok) {
+				setPopup('Tài liệu tải lên không được nặng hơn 250MB.')
+				return
+			}
+		}
+
+		// ===== xử lý theo type =====
+		let res
+
+		if (type === 'upload') {
+			res = await fileApi.upload(formData)
+		}
+
+		if (type === 'edit') {
+			const data = Object.fromEntries(formData.entries())
+			if (!data.subjectCode) delete data.subjectCode
+
+			await fileApi.updateMetadata(extraData.id, data)
+			res = { message: 'Cập nhật thông tin tài liệu thành công.' }
+		}
+
+		if (type === 'replace') {
+			formData.append('Title', extraData.title)
+			formData.append('SubjectCode', extraData.subjectCode || '')
+			formData.append('FileType', extraData.fileType)
+			formData.append('Permission', extraData.permission)
+
+			res = await fileApi.replace(extraData.id, formData)
+		}
+		setPopup(res.message)
+		onSuccess?.()
+	} catch (err) {
+		handleError(err, setPopup)
+	}
 }
