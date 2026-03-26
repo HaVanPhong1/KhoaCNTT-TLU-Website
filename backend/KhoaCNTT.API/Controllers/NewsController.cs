@@ -45,9 +45,17 @@ namespace KhoaCNTT.API.Controllers
         /// <summary>Lấy AdminId thực từ DB qua username trong JWT</summary>
         private async Task<int> GetCurrentAdminIdAsync()
         {
-            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                           ?? User.FindFirst(ClaimTypes.Name)?.Value
+                           ?? "";
+
             if (string.IsNullOrEmpty(username)) return 0;
+
+       
             var admin = await _adminRepo.GetByUsernameAsync(username);
+
+          
             return admin?.Id ?? 0;
         }
 
