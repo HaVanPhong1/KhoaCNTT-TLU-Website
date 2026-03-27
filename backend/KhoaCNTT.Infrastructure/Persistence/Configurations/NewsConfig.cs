@@ -46,9 +46,6 @@ namespace KhoaCNTT.Infrastructure.Persistence.Configurations
             builder.Property(x => x.Id).HasColumnName("NewsRequestID");
             builder.Property(x => x.Title).HasColumnType("nvarchar(255)").IsRequired();
 
-            // ĐÃ THÊM: Map trường Content khớp với DB Design (nvarchar(MAX))
-            builder.Property(x => x.Content).HasColumnType("nvarchar(MAX)").IsRequired();
-
             builder.Property(x => x.RequestType).HasConversion<string>().HasColumnType("varchar(50)");
             builder.Property(x => x.NewsType).HasConversion<string>().HasColumnType("varchar(50)");
 

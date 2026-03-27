@@ -70,7 +70,6 @@ public class NewsService(
             OldResourceId = null,
             Title = dto.Title,
             NewsType = dto.NewsType,
-            Content = dto.Content,
             RequestType = RequestType.CreateNew,
             IsProcessed = false,
             CreatedAt = DateTime.UtcNow
@@ -104,7 +103,6 @@ public class NewsService(
             OldResourceId = existingNews.CurrentResourceId,
             Title = dto.Title,
             NewsType = dto.NewsType,
-            Content = dto.Content,
             RequestType = RequestType.Replace,
             IsProcessed = false,
             CreatedAt = DateTime.UtcNow
@@ -249,7 +247,6 @@ public class NewsService(
         TargetNewsID = r.TargetNewsId,
         Title = r.Title,
         NewsType = r.NewsType,
-        Content = r.Content,
         RequestType = r.RequestType,
         IsProcessed = r.IsProcessed,
         CreatedAt = r.CreatedAt

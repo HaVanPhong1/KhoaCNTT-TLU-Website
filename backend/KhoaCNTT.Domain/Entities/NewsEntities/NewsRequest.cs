@@ -17,8 +17,7 @@ namespace KhoaCNTT.Domain.Entities.NewsEntities
         public string Title { get; set; } = string.Empty;
         public NewsType NewsType { get; set; }
 
-        // Thêm trường Content để map với DB (nvarchar(MAX))
-        public string Content { get; set; } = string.Empty;
+      
 
         public RequestType RequestType { get; set; }
         public bool IsProcessed { get; set; } = false;
