@@ -1,0 +1,43 @@
+services:
+  # 1. Database SQL Server 2022
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql_server_tlu
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password123!@#
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+      - ./database:/usr/config  # Mount thư mục chứa subjects.sql vào để nạp dữ liệu
+
+  # 2. Backend .NET API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: KhoaCNTT.API/Dockerfile
+    container_name: backend_tlu_api
+    ports:
+      - "5000:8080" # Truy cập Swagger qua cổng 5000
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Database=KhoaCNTT;User Id=sa;Password=Password123!@#;TrustServerCertificate=True;
+      - FileStorage__UploadFolder=/app/uploads
+    volumes:
+      - ./backend/uploads:/app/uploads # Lưu trữ file upload bền vững
+
+  # 3. Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend_tlu_web
+    ports:
+      - "3000:80" # Người dùng vào web qua cổng 3000
+    depends_on:
+      - backend
+
+volumes:
+  sql_data:
