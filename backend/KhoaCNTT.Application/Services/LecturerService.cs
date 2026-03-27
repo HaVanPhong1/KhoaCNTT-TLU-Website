@@ -54,7 +54,7 @@ namespace KhoaCNTT.Application.Services
                 throw new BusinessRuleException("Email không được để trống.");
             if (string.IsNullOrWhiteSpace(request.FullName))
                 throw new BusinessRuleException("Họ tên không được để trống.");
-            if (await _lecturerRepo.EmailExistsAsync(request.Email, null))
+            if (await _lecturerRepo.ExistsWithEmailAsync(request.Email.Trim(), null))
                 throw new BusinessRuleException("Email đã được sử dụng");
 
             var lecturer = new Lecturer
@@ -67,10 +67,6 @@ namespace KhoaCNTT.Application.Services
                 Email = request.Email.Trim(),
                 PhoneNumber = (request.PhoneNumber ?? "").Trim()
             };
-
-            var emailCreate = request.Email.Trim();
-            if (await _lecturerRepo.ExistsWithEmailAsync(emailCreate, null))
-                throw new BusinessRuleException("Email đã được sử dụng");
 
             await SetLecturerSubjectsAsync(lecturer, request.SubjectCodes ?? new List<string>());
             await _lecturerRepo.AddAsync(lecturer);

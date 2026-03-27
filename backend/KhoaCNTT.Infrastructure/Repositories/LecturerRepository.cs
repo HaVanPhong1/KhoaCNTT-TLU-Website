@@ -23,7 +23,7 @@ namespace KhoaCNTT.Infrastructure.Repositories
                 .FirstOrDefaultAsync(l => l.Id == id);
         }
 
-        public async Task<bool> EmailExistsAsync(string email, int? exceptLecturerId)
+        public async Task<bool> ExistsWithEmailAsync(string email, int? exceptLecturerId)
         {
             if (string.IsNullOrWhiteSpace(email)) return false;
             var normalized = email.Trim().ToLowerInvariant();
