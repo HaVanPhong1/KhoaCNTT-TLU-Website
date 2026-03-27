@@ -14,8 +14,9 @@ const lecturerApi = {
 		return axiosClient.post('/Lecturers', data)
 	},
 
-	update: (id, data) => {
-		return axiosClient.put(`/Lecturers/${id}`, data)
+	update: (payload) => {
+		const { id, ...body } = payload
+		return axiosClient.put(`/Lecturers/${id}`, body)
 	},
 
     delete: (id) => {
