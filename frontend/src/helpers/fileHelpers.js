@@ -116,6 +116,16 @@ export const handleFormSubmit = async ({
 			}
 		}
 
+		if (type === 'edit' || type === 'upload') {
+			if (formData.get('title') === '') {
+				setPopup({
+					message: 'Tiêu đề phải có độ dài từ 3-20 ký tự.',
+					type: 'error'
+				})
+				return
+			}
+		}
+
 		// ===== xử lý theo type =====
 		let res
 
