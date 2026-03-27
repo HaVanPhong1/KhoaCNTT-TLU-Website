@@ -1,5 +1,3 @@
-import { Icon } from '@iconify/react'
-
 function IconButton({ icon: Icon, color, onClick, message = '' }) {
 	return (
 		<button

@@ -11,6 +11,20 @@ import { columns, fields } from '../../../constants/lecturer'
 
 import { UserCog, Trash2 } from 'lucide-react'
 
+function lecturerPayloadFromFormData(formData) {
+	const o = Object.fromEntries(formData.entries())
+	if (typeof o.subjectCodes === 'string' && o.subjectCodes.trim()) {
+		try {
+			o.subjectCodes = JSON.parse(o.subjectCodes)
+		} catch {
+			o.subjectCodes = []
+		}
+	} else {
+		o.subjectCodes = []
+	}
+	return o
+}
+
 function ManageLecturers() {
 	const [lecturers, setLecturers] = useState([])
 	const [showCreate, setShowCreate] = useState(false)
@@ -78,7 +92,7 @@ function ManageLecturers() {
 					onSubmit={(data) =>
 						handleAction(
 							lecturerApi.create,
-							data,
+							lecturerPayloadFromFormData(data),
 							setShowCreate,
 							loadLecturers,
 							setPopup
@@ -98,7 +112,7 @@ function ManageLecturers() {
 					onSubmit={(data) =>
 						handleAction(
 							lecturerApi.update,
-							{ id: editing.id, ...data },
+							{ id: editing.id, ...lecturerPayloadFromFormData(data) },
 							setEditing,
 							loadLecturers,
 							setPopup

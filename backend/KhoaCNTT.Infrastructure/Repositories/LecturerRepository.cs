@@ -23,6 +23,17 @@ namespace KhoaCNTT.Infrastructure.Repositories
                 .FirstOrDefaultAsync(l => l.Id == id);
         }
 
+        public async Task<bool> EmailExistsAsync(string email, int? exceptLecturerId)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return false;
+            var normalized = email.Trim().ToLowerInvariant();
+            var query = _context.Lecturers.AsNoTracking()
+                .Where(l => l.Email.ToLower() == normalized);
+            if (exceptLecturerId.HasValue)
+                query = query.Where(l => l.Id != exceptLecturerId.Value);
+            return await query.AnyAsync();
+        }
+
         public async Task<(List<Lecturer> Items, int TotalCount)> GetAllAsync(string? name, DegreeType? degree, string? position, string? subjectCodeOrName, int page, int pageSize)
         {
             var query = _context.Lecturers

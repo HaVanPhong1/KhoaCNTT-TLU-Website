@@ -1,13 +1,20 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import studentApi from '../../api/studentApi'
 
-function SubjectMultiSelect({ subjects = [], values = [], onChange }) {
+function SubjectMultiSelect({ values = [], onChange }) {
 	const [keyword, setKeyword] = useState('')
+	const [subjects, setSubjects] = useState([])
+
+	useEffect(() => {
+		studentApi.getSubjects().then(setSubjects).catch(console.error)
+	}, [])
 
 	const filtered = subjects.filter(
 		(s) =>
-			(s.code + ' ' + s.name)
+			(s.subjectCode + ' ' + s.subjectName)
 				.toLowerCase()
-				.includes(keyword.toLowerCase()) && !values.includes(s.code)
+				.includes(keyword.toLowerCase()) &&
+			!values.includes(s.subjectCode)
 	)
 
 	const add = (code) => {
@@ -53,11 +60,11 @@ function SubjectMultiSelect({ subjects = [], values = [], onChange }) {
 				<div className='max-h-40 overflow-y-auto mt-2 border rounded'>
 					{filtered.map((s) => (
 						<div
-							key={s.code}
-							onClick={() => add(s.code)}
+							key={s.subjectCode}
+							onClick={() => add(s.subjectCode)}
 							className='px-2 py-1 cursor-pointer hover:bg-gray-100 text-sm'>
-							<span className='font-medium'>{s.code}</span>{' '}
-							<span className='text-gray-500'>– {s.name}</span>
+							<span className='font-medium'>{s.subjectCode}</span>{' '}
+							<span className='text-gray-500'>– {s.subjectName}</span>
 						</div>
 					))}
 				</div>
