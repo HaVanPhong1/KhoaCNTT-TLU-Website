@@ -10,11 +10,12 @@ function SubjectSelect({ value, onChange }) {
 	}, [])
 
 	useEffect(() => {
-		if (!value || !subjects.length) return
-		const s = subjects.find((x) => x.subjectCode === value)
-		if (!s) return
-		const label = `${s.subjectCode} – ${s.subjectName}`
-		queueMicrotask(() => setKeyword(label))
+		if (value && subjects.length) {
+			const s = subjects.find((x) => x.subjectCode === value)
+			if (s) {
+				setKeyword(`${s.subjectCode} – ${s.subjectName}`)
+			}
+		}
 	}, [value, subjects])
 
 	const filtered = subjects.filter((s) =>
